@@ -1,6 +1,6 @@
 import numpy as np
 import rasterio
-from .io import write_ras
+from ptio import write_ras
 from startinpy import DT
 
 

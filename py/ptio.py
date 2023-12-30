@@ -27,5 +27,5 @@ def write_ras(file_path, profile, data):
         dst.write(data)
 
 
-if __name__ == "__main__":
-    read_laz("./data/thinned/LAS.las")
+# if __name__ == "__main__":
+#     read_laz("../data/thinned/thinned.las")

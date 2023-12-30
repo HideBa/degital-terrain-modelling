@@ -1,14 +1,15 @@
-from py.io import read_laz
-from py.point_cloud import GFTIN
-from py.tin import TIN
+from ptio import read_laz
+from point_cloud import GFTIN
+from tin import TIN
+import numpy as np
 
 
 def create_dtm(input_file, output_file):
     las = read_laz(input_file)
 
-    bbox = las.header.min + las.header.max
-    print("bbox:", bbox)
-    gftin = GFTIN(100, las.points, bbox, False)
+    bbox = np.concatenate((las.header.mins, las.header.maxs))
+    # print("bbox:", bbox)
+    gftin = GFTIN(las, 100, las.points, bbox, False)
 
     ground_points = gftin.ground_filtering()
 
@@ -23,4 +24,18 @@ def create_dtm(input_file, output_file):
 
 
 if __name__ == "__main__":
-    create_dtm("./data/thinned/LAS.las", "./data/out/dtm.tif")
+    # path = (os.path.join(os.path.dirname(__file__), "data/thinned.las"),)
+    # print("path---", path)
+    # print("--------")
+    # print("path1", os.path.dirname(__file__))
+    # print("path2", os.path.abspath(__file__))
+    # print("path3", os.path.dirname(os.path.abspath(__file__)))
+    # print("path4", __file__)
+    # print("path5", path)
+    # print("--------")
+
+    create_dtm(
+        "./py/data/thinned.las",  # TODO: change later
+        # path,
+        "./data/out/dtm.tif",
+    )

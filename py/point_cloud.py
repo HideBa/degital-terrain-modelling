@@ -7,7 +7,8 @@ GFTIN_CELL_SIZE = 100  # meters
 
 
 class GFTIN:
-    def __init__(self, cell_size, pts, bbox, outliner_removal=True):
+    def __init__(self, las, cell_size, pts, bbox, outliner_removal=True):
+        self.las = las
         if cell_size <= 0:
             raise ValueError("cell_size must be positive")
         if len(pts) == 0:
@@ -75,13 +76,33 @@ class GFTIN:
 
     def _extreact_lowest_points(self):
         cells = self._divide_extent_by_cell_size()
-        lowest_points = []
+        # points is a list of laspy.points.PointFormat
+        points = []
         for row in cells:
             for cell in row:
-                lowest_points.append(self._find_lowest_point_in_a_cell(cell))
-        return lowest_points
+                lowest_point = self._find_lowest_point_in_a_cell(cell)
+                points.extend(lowest_point)
 
-    def _find_lowest_point_in_a_cell(self, cell, num=3):
+        p = points[0]
+        print(p)
+        x = p.x
+        print(x)
+        # covert laspy.points.PointFormat to simple [x,y,z] array
+        # TODO: start from here
+        arr = []
+        for i, p in enumerate(points):
+            x = p.x
+            y = p.y
+            z = p.z
+            print("x:", x)
+            print("y:", y)
+            print("z:", z)
+            arr.append([p.x, p.y, p.z])
+
+        points = np.array(arr)
+        return arr
+
+    def _find_lowest_point_in_a_cell(self, cell, num=1):
         cell_bbox = [
             cell[0] - (self.cell_size / 2),
             cell[1] - (self.cell_size / 2),
@@ -89,26 +110,29 @@ class GFTIN:
             cell[1] + (self.cell_size / 2),
         ]  # [minx, miny, maxx, maxy]
         points = self.points
-        x_valid = (cell_bbox[0] <= points.x) & (cell_bbox[3] >= points.x)
-        y_valid = (cell_bbox[1] <= points.y) & (cell_bbox[4] >= points.y)
-        points_in_cell = np.where(x_valid & y_valid)
-        min_points = points_in_cell[np.argmin(points_in_cell, axis=2)[: num - 1]]
+        x_valid = (cell_bbox[0] <= points.x) & (cell_bbox[2] >= points.x)
+        y_valid = (cell_bbox[1] <= points.y) & (cell_bbox[3] >= points.y)
+
+        valid_indices = np.where(x_valid & y_valid)[0]
+        print("valid_indices:", valid_indices)
+        points_in_cell = points[valid_indices]
+
+        z_min_indices = np.argsort(points_in_cell.z)[-num:]
+
+        min_points = points_in_cell[z_min_indices]
         return min_points
 
-    def _divide_extent_by_cell_size(
-        self,
-    ):  # returns a list of cells which contains center coordinates
+    def _divide_extent_by_cell_size(self):
         rows = []
-
-        for y in range(self.bbox[1], self.bbox[4], self.cell_size):
+        y = self.bbox[1]
+        while y < self.bbox[4]:
             columns = []
-            if y > self.bbox[4]:
-                break
-            for x in range(self.bbox[0], self.bbox[3], self.cell_size):
-                if x > self.bbox[3]:
-                    break
+            x = self.bbox[0]
+            while x < self.bbox[3]:
                 columns.append([x + (self.cell_size / 2), y + (self.cell_size / 2)])
+                x += self.cell_size
             rows.append(columns)
+            y += self.cell_size
         return rows
 
 
