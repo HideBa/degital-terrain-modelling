@@ -10,6 +10,8 @@ packages = [{include = "geo1015_ass4_team_bbq"}]
 python = "^3.11"
 laspy = "^2.5.1"
 numpy = "^1.26.2"
+rasterio = "^1.3.9"
+startinpy = "^0.10.2"
 
 
 [tool.poetry.group.dev.dependencies]
