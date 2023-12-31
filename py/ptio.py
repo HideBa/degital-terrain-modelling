@@ -1,15 +1,11 @@
-import os
 import laspy
 import numpy as np
 import rasterio
 
 
 def read_laz(file_path):
-    with laspy.open(file_path) as f:
-        print("header:", f.header)
+    with laspy.open(file_path, "r") as f:
         las = f.read()
-        print("points:", len(las.points))
-        print("dimensions:", list(las.point_format.dimension_names))
         return las
 
 
@@ -24,7 +20,7 @@ def clip_pc(las, bbox):  # bbox = [minx, miny, minz, maxx, maxy, maxz]
 
 def write_ras(file_path, profile, data):
     with rasterio.open(file_path, "w", **profile) as dst:
-        dst.write(data)
+        dst.write(data, 1)
 
 
 # if __name__ == "__main__":
