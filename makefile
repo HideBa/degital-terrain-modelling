@@ -26,6 +26,14 @@ test:
 	poetry run pytest $(PACKAGE_DIR)
 
 
-.PHONY: run
-run:
-	python $(PACKAGE_DIR)/main.py
+.PHONY: step3
+step3:
+	python $(PACKAGE_DIR)/step3.py
+
+.PHONY: step4
+step4:
+	python $(PACKAGE_DIR)/step4.py
+
+.PHONY: step5
+step5:
+	python $(PACKAGE_DIR)/step5.py

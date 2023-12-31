@@ -1,6 +1,6 @@
 import os
 from ptio import read_laz
-from point_cloud import GFTIN
+from py.gftin import GFTIN
 from preprocess import remove_outliers
 from tin import TIN
 import numpy as np
