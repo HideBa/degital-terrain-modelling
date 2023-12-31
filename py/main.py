@@ -1,6 +1,7 @@
 import os
 from ptio import read_laz
 from point_cloud import GFTIN
+from preprocess import remove_outliers
 from tin import TIN
 import numpy as np
 
@@ -25,7 +26,11 @@ def create_dtm(input_file, output_file):
 
 
 if __name__ == "__main__":
+    remove_outliers(
+        "./py/data/thinned.las",
+        "./py/data/out/thinned_without_outliers.las",
+    )
     create_dtm(
-        "./py/data/thinned.las",  # TODO: change later
+        "./py/data/out/thinned_without_outliers.las",  # TODO: change later
         "./py/data/out/dtm.tif",
     )

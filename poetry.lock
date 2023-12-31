@@ -304,6 +304,20 @@ files = [
 ]
 
 [[package]]
+name = "pdal"
+version = "3.2.3"
+description = "Point cloud data processing"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pdal-3.2.3.tar.gz", hash = "sha256:0bc2cb113f4df45b239dd54aedb8026478349db2daa5c98569994308d0563807"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "platformdirs"
 version = "4.1.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
@@ -467,4 +481,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9bec6e61333bd59d4688906733abb2ec8ebc52b7318fe9e01ed18d1fe5435b5b"
+content-hash = "94a08e92c3309a0a6667f411a7f20fcbeb45f1b84beff69bfe1b60e3c91ac055"
