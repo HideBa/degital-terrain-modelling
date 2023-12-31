@@ -161,3 +161,5 @@ cython_debug/
 
 /py/data
 .DS_Store
+/cloud_compare
+/qgis
