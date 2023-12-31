@@ -22,7 +22,6 @@ def remove_outliers(input_path, output_path, nb_neighbors=10, std_ratio=2.0):
         nb_neighbors=nb_neighbors,
         std_ratio=std_ratio,
     )
-    print("setting", pipeline_setting)
     pipeline = pdal.Pipeline(pipeline_setting)
     count = pipeline.execute()
     arrays = pipeline.arrays

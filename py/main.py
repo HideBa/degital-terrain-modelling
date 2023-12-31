@@ -32,5 +32,5 @@ if __name__ == "__main__":
     )
     create_dtm(
         "./py/data/out/thinned_without_outliers.las",  # TODO: change later
-        "./py/data/out/dtm.tif",
+        "./py/data/out/dtm.tiff",
     )
