@@ -13,6 +13,9 @@ def extract_veg(inputfile, outputfile):
     las_info(las)
 
     first_returns = las.points[las.points["return_num"] == 1]
+    print("gps_time")
+    print(first_returns["gps_time"][0])
+
     print("first returns:")
     print(len(first_returns))
 

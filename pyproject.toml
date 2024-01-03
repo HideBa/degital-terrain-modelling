@@ -13,6 +13,7 @@ numpy = "^1.26.2"
 rasterio = "^1.3.9"
 startinpy = "^0.10.2"
 pdal = "^3.2.3"
+pyproj = "^3.6.1"
 
 
 [tool.poetry.group.dev.dependencies]

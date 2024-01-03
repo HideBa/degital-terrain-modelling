@@ -1,13 +1,13 @@
 import math
 import numpy as np
+from pyproj import Proj, Transformer
 from startinpy import DT
 
-
-GFTIN_CELL_SIZE = 100  # meters
+from geojson import write_geojson
 
 
 class GFTIN:
-    def __init__(self, las, cell_size, pts, bbox, outliner_removal=True):
+    def __init__(self, las, cell_size, pts, bbox):
         self.las = las
         if cell_size <= 0:
             raise ValueError("cell_size must be positive")
@@ -20,12 +20,17 @@ class GFTIN:
         self.bbox = bbox  # [minx, miny, minz, maxx, maxy, maxz]
         self.dt = DT()
         self._construct_initial_tin()
-        # if outliner_removal:
-        # TODO: remove outliners
 
-    # This function is for testing purpose only
+    # This function is for testing purpose only. The reason why statrinpy's write_geojson isn't used is because it doesn't support WGS84 coordinate system.
     def write_tin_geojson(self, file_path):
-        self.dt.write_geojson(file_path)
+        # self.dt.write_geojson(file_path)
+        source_crs = Proj(init="epsg:28992")
+        destination_crs = Proj(init="epsg:4326")  # WGS84
+        transformer = Transformer.from_proj(source_crs, destination_crs)
+        reprojected_points = np.array(
+            list(transformer.itransform(self.dt.points)), dtype=np.float64
+        )
+        write_geojson(file_path, reprojected_points)
 
     def ground_filtering(self, dist_threshold=0.5, max_angle=10):  # degree
         ground_points = np.empty((0, 3))
@@ -98,7 +103,7 @@ class GFTIN:
         for row in cells:
             for cell in row:
                 lowest_point = self._find_lowest_point_in_a_cell(
-                    cell, 3
+                    cell, 1
                 )  # TODO configure this number later
                 points = np.vstack((points, lowest_point))
         return points

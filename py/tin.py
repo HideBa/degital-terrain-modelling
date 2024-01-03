@@ -1,7 +1,10 @@
 import numpy as np
+from pyproj import Proj, Transformer
 import rasterio
 from ptio import write_ras
 from startinpy import DT
+
+from geojson import write_geojson
 
 
 class TIN:
@@ -11,7 +14,17 @@ class TIN:
         self.dt.insert(points)
 
     def save_geojson(self, file_path):
-        self.dt.write_geojson(file_path)
+        # self.dt.write_geojson(file_path)
+        self._save_geojson(self.points, file_path)
+
+    def _save_geojson(self, points, file_path):
+        source_crs = Proj(init="epsg:28992")  # Amersfoort / RD New
+        destination_crs = Proj(init="epsg:4326")  # WGS84
+        transformer = Transformer.from_proj(source_crs, destination_crs)
+        reprojected_points = np.array(
+            list(transformer.itransform(points)), dtype=np.float64
+        )
+        write_geojson(file_path, reprojected_points)
 
     def _laplace_interpolate(self, p):
         # if not self.dt.is_inside_convex_hull(p[0], p[1]):
@@ -28,12 +41,8 @@ class TIN:
         y = bbox[1]
         while y < bbox[3]:
             cols = []
-            if y > bbox[3]:
-                break
             x = bbox[0]
             while x < bbox[2]:
-                if x > bbox[2]:
-                    break
                 z = self._laplace_interpolate([x, y])
                 cols.append([x + (cell_size / 2), y + (cell_size / 2), z[0]])
                 x += cell_size
@@ -42,9 +51,16 @@ class TIN:
         return rows
 
     def write_dtm(self, file_path):
-        grid_points = np.array(self.to_gridded_points(0.5))
-        # TODO: change profile later
+        grid_points = np.array(self.to_gridded_points(5))
         raster_points = grid_points[:, :, 2]
+
+        # Debug purpose
+        # ----------------------------------------
+        reshaped = grid_points.reshape(-1, 3)
+        print(reshaped)
+        self._save_geojson(reshaped, "./py/data/out/debug/grid_points.geojson")
+        # ----------------------------------------
+
         profile = {
             "driver": "GTiff",
             "dtype": "float32",
@@ -53,11 +69,13 @@ class TIN:
             "width": raster_points.shape[1],
             "count": 1,
             "crs": "EPSG:28992",
-            "transform": rasterio.transform.from_origin(  # type: ignore
+            "transform": rasterio.transform.from_bounds(  # type: ignore
                 grid_points[0][0][0],
                 grid_points[0][0][1],
-                0.5,
-                0.5,
+                grid_points[-1][-1][0],
+                grid_points[-1][-1][1],
+                raster_points.shape[1],
+                raster_points.shape[0],
             ),
         }
         write_ras(file_path, profile, raster_points)
