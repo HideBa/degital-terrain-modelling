@@ -30,6 +30,10 @@ test:
 step3:
 	python $(PACKAGE_DIR)/step3.py
 
+.PHONY: step3-opt
+step3-opt:
+	python $(PACKAGE_DIR)/optimizer.py
+
 .PHONY: step4
 step4:
 	python $(PACKAGE_DIR)/step4.py

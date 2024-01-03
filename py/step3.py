@@ -2,8 +2,10 @@ import os
 from ptio import read_laz
 from gftin import GFTIN
 from preprocess import remove_outliers
+from lasinfo import las_info
 from tin import TIN
 import numpy as np
+import laspy
 
 GFTIN_CELL_SIZE = 100  # meters
 
@@ -12,8 +14,7 @@ def create_dtm(
     input_file,
     output_file,
 ):
-    # las = read_laz(input_file)
-
+    las = read_laz(input_file)
     # bbox = np.concatenate((las.header.mins, las.header.maxs))
     # gftin = GFTIN(las, GFTIN_CELL_SIZE, las.xyz, bbox)
     # gftin.write_tin_geojson("./py/data/out/debug/gftin.geojson")
@@ -22,12 +23,48 @@ def create_dtm(
     # # Save ground_points to a text file
     # np.savetxt("./py/data/out/debug/ground_points.txt", ground_points)
 
-    ground_points = np.loadtxt("./py/data/out/debug/ground_points.txt")
+    # ground_points = np.loadtxt("./py/data/out/debug/ground_points.txt")
 
-    # write ground points to a file
-    tin = TIN(ground_points)
-    tin.save_geojson("./py/data/out/debug/tin.geojson")
-    tin.write_dtm(output_file)
+    # # write ground points to a file
+    # tin = TIN(ground_points)
+    # tin.save_geojson("./py/data/out/debug/tin.geojson")
+    # tin.write_dtm(output_file)
+
+
+def create_dtm2(
+    input_file,
+    output_file,
+):
+    las = read_laz(input_file)
+    las.add_extra_dim(
+        laspy.ExtraBytesParams(
+            name="is_ground",
+            type=np.uint8,  # 0: not ground, 1: ground
+        )
+    )
+    las.is_ground = np.zeros(len(las.points), dtype=np.uint8)
+
+    bbox = np.concatenate((las.header.mins, las.header.maxs))
+    gftin = GFTIN(las, GFTIN_CELL_SIZE, bbox)
+
+    # gftin.write_tin_geojson("./py/data/out/debug/gftin.geojson")
+    ground_points = gftin.ground_filtering()
+    points = las.points
+    print("number of ground", len(points[points.is_ground == 1]))
+    print("non ground", len(points[points.is_ground == 0]))
+    print("is ground---", las.points.is_ground)
+
+    # # Save ground_points to a text file
+    np.savetxt("./py/data/out/debug/ground_points.txt", ground_points)
+
+    # ground_points = np.loadtxt("./py/data/out/debug/ground_points.txt")
+
+    # # write ground points to a file
+    # tin = TIN(ground_points)
+    # tin.save_geojson("./py/data/out/debug/tin.geojson")
+    # tin.write_dtm(output_file)
+
+    return las
 
 
 if __name__ == "__main__":
@@ -37,7 +74,7 @@ if __name__ == "__main__":
             "./py/data/out/thinned_without_outliers.las",
         )
 
-    create_dtm(
+    create_dtm2(
         "./py/data/out/thinned_without_outliers.las",  # TODO: change later
         "./py/data/out/dtm.tiff",
     )

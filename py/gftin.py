@@ -7,16 +7,18 @@ from geojson import write_geojson
 
 
 class GFTIN:
-    def __init__(self, las, cell_size, pts, bbox):
+    def __init__(self, las, cell_size, bbox):
+        if las is None:
+            raise ValueError("las must not be None")
         self.las = las
         if cell_size <= 0:
             raise ValueError("cell_size must be positive")
-        if len(pts) == 0:
-            raise ValueError("pts must not be empty")
+        # if len(pts) == 0:
+        #     raise ValueError("pts must not be empty")
         if len(bbox) != 6:
             raise ValueError("bbox must have 6 elements")
         self.cell_size = cell_size
-        self.points = pts  # numpy array of [x,y,z]
+        # self.points = pts  # las points
         self.bbox = bbox  # [minx, miny, minz, maxx, maxy, maxz]
         self.dt = DT()
         self._construct_initial_tin()
@@ -32,10 +34,11 @@ class GFTIN:
         )
         write_geojson(file_path, reprojected_points)
 
-    def ground_filtering(self, dist_threshold=0.5, max_angle=10):  # degree
+    def ground_filtering(self, dist_threshold=5, max_angle=5):  # degree
         ground_points = np.empty((0, 3))
-        points = self.points
-        for p in points:
+        points = self.las.points
+        xyz_points = self.las.xyz
+        for i, p in enumerate(xyz_points):
             try:
                 tri = self.dt.locate(p)
             except Exception:
@@ -45,19 +48,25 @@ class GFTIN:
                     tri = self.dt.incident_triangles_to_vertex(nearest_point)[0]
                 except Exception:
                     print("point isn't inside of triangle")
+
+                    points.is_ground[i] = 0
                     continue
             # d is the intersection point of the triangle and the vertical line from p
             tri_vetecies = [self.dt.points[i] for i in tri]  # [[x, y, z]]
             d = self._intersection_point_of_triangle(tri_vetecies, p)
             dist = np.linalg.norm(p - d)
             if dist > dist_threshold:
+                points.is_ground[i] = 0
                 continue
             a, b, c = tri_vetecies
             angle_a_p = self._angle_between_two_vectors(a, d, p)
             angle_b_p = self._angle_between_two_vectors(b, d, p)
             angle_c_p = self._angle_between_two_vectors(c, d, p)
             if angle_a_p > max_angle or angle_b_p > max_angle or angle_c_p > max_angle:
+                points.is_ground[i] = 0
                 continue
+
+            points.is_ground[i] = 1
             ground_points = np.vstack((ground_points, p))
         return ground_points
 
@@ -115,7 +124,7 @@ class GFTIN:
             cell[0] + (self.cell_size / 2),
             cell[1] + (self.cell_size / 2),
         ]  # [minx, miny, maxx, maxy]
-        points = self.points  # [[x, y, z]]
+        points = self.las.xyz
         x_valid = (cell_bbox[0] <= points[:, 0]) & (cell_bbox[2] >= points[:, 0])
         y_valid = (cell_bbox[1] <= points[:, 1]) & (cell_bbox[3] >= points[:, 1])
 
