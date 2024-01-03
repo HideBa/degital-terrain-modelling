@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from pyproj import Proj, Transformer
 from startinpy import DT
 
 from geojson import write_geojson
@@ -13,12 +12,9 @@ class GFTIN:
         self.las = las
         if cell_size <= 0:
             raise ValueError("cell_size must be positive")
-        # if len(pts) == 0:
-        #     raise ValueError("pts must not be empty")
         if len(bbox) != 6:
             raise ValueError("bbox must have 6 elements")
         self.cell_size = cell_size
-        # self.points = pts  # las points
         self.bbox = bbox  # [minx, miny, minz, maxx, maxy, maxz]
         self.dt = DT()
         self._construct_initial_tin()
@@ -26,16 +22,15 @@ class GFTIN:
     # This function is for testing purpose only. The reason why statrinpy's write_geojson isn't used is because it doesn't support WGS84 coordinate system.
     def write_tin_geojson(self, file_path):
         # self.dt.write_geojson(file_path)
-        source_crs = Proj(init="epsg:28992")
-        destination_crs = Proj(init="epsg:4326")  # WGS84
-        transformer = Transformer.from_proj(source_crs, destination_crs)
-        reprojected_points = np.array(
-            list(transformer.itransform(self.dt.points)), dtype=np.float64
+        write_geojson(
+            file_path,
+            self.dt.points,
+            "epsg:28992",
+            "epsg:4326",
         )
-        write_geojson(file_path, reprojected_points)
 
-    def ground_filtering(self, dist_threshold=5, max_angle=5):  # degree
-        ground_points = np.empty((0, 3))
+    def ground_filtering(self, dist_threshold=5, max_angle=30):  # degree
+        # ground_points = np.empty((0, 3))
         points = self.las.points
         xyz_points = self.las.xyz
         for i, p in enumerate(xyz_points):
@@ -67,7 +62,9 @@ class GFTIN:
                 continue
 
             points.is_ground[i] = 1
-            ground_points = np.vstack((ground_points, p))
+            # ground_points = np.vstack((ground_points, p))
+        ground_points_indices = np.where(points.is_ground == 1)[0]
+        ground_points = xyz_points[ground_points_indices]
         return ground_points
 
     def _angle_between_two_vectors(self, a, b, c):
@@ -108,12 +105,21 @@ class GFTIN:
 
     def _extract_lowest_points(self):
         cells = self._divide_extent_by_cell_size()
+
+        reshaped_cell = np.array(cells).reshape(-1, 2)
+        # Debug
+        # ----------------------------------------
+        write_geojson(
+            "./py/data/out/debug/cells.geojson",
+            reshaped_cell,
+            "epsg:28992",
+            "epsg:4326",
+        )
+
         points = np.empty((0, 3))
         for row in cells:
             for cell in row:
-                lowest_point = self._find_lowest_point_in_a_cell(
-                    cell, 1
-                )  # TODO configure this number later
+                lowest_point = self._find_lowest_point_in_a_cell(cell, 1)
                 points = np.vstack((points, lowest_point))
         return points
 
