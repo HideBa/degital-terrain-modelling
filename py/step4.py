@@ -51,5 +51,5 @@ if __name__ == "__main__":
 
     extract_vegetation(
         "./py/data/out/thinned_without_outliers.las",  # TODO: change later
-        "./py/data/out/chm.tiff",
+        "./py/data/out/vegetation.tiff",
     )
