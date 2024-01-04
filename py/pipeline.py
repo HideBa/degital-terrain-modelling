@@ -33,7 +33,7 @@ class Pipeline:
         )
         return self
 
-    def dbscan(self, min_points=10, eps=2.0):
+    def dbscan(self, min_points=6, eps=3):
         dbscan_pipe = [
             {
                 "type": "filters.dbscan",
@@ -65,6 +65,5 @@ class Pipeline:
 
         print("Pipeline executed successfully")
         print("Point count: ", count)
-        print("Arrays: ", arrays)
-        print("Metadata: ", metadata)
-        print("Log: ", log)
+        # print("Arrays: ", arrays)
+        # print("Metadata: ", metadata)
