@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import rasterio
 from ptio import write_ras
@@ -22,7 +23,72 @@ class TIN:
         # tri = self.dt.locate(p)
         # p0, p1, p2 = self.dt.points[tri[0]], self.dt.points[tri[1]], self.dt.points[tri[2]]
         # TODO: fix later
-        return self.dt.interpolate({"method": "Laplace"}, [[p[0], p[1]]])
+        p = [p[0], p[1], 0.0]
+        p_index = self.dt.insert_one_pt(p[0], p[1], p[2])
+        triangles = self.dt.incident_triangles_to_vertex(p_index)
+
+        weight_z_pairs = []
+        for i, tri in enumerate(triangles):
+            p0_i, p1_i, p2_i = tri
+            p0, p1, p2 = (
+                tuple(self.dt.points[p0_i]),
+                tuple(self.dt.points[p1_i]),
+                tuple(self.dt.points[p2_i]),
+            )
+            next_tri = triangles[(i + 1) % len(triangles)]
+            p3_i, p4_i, p5_i = next_tri
+            p3, p4, p5 = (
+                tuple(self.dt.points[p3_i]),
+                tuple(self.dt.points[p4_i]),
+                tuple(self.dt.points[p5_i]),
+            )
+
+            common_points_indices = list(
+                set([p0_i, p1_i, p2_i]).intersection(set([p3_i, p4_i, p5_i]))
+            )
+            cc1 = self._circimcircle_center(p0, p1, p2)
+            cc2 = self._circimcircle_center(p3, p4, p5)
+            if cc1 is None or cc2 is None:
+                continue
+            voronoi_edge_length = math.dist(cc1, cc2)
+            edge = math.dist(
+                self.dt.points[common_points_indices[0]],
+                self.dt.points[common_points_indices[1]],
+            )
+            weight = voronoi_edge_length / edge
+            common_points_indices.remove(p_index)
+            z = self.dt.points[common_points_indices[0]][2]
+            weight_z_pairs.append([weight, z])
+        interpolated_value = sum([w * z for w, z in weight_z_pairs]) / sum(
+            [w for w, _ in weight_z_pairs]
+        )
+
+        self.dt.remove(p_index)
+        true_interpolated_value = self.dt.interpolate(
+            {"method": "Laplace"}, [[p[0], p[1]]]
+        )
+        print("my implementation:", interpolated_value)
+        print("startin implementation:", true_interpolated_value)
+        return true_interpolated_value
+
+    def _circimcircle_center(self, p0, p1, p2):
+        ax, ay = p0[0], p0[1]
+        bx, by = p1[0], p1[1]
+        cx, cy = p2[0], p2[1]
+        d = 2.0 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+        if d == 0:
+            return None
+        ux = (
+            (ax**2 + ay**2) * (by - cy)
+            + (bx**2 + by**2) * (cy - ay)
+            + (cx**2 + cy**2) * (ay - by)
+        ) / d
+        uy = (
+            (ax**2 + ay**2) * (cx - bx)
+            + (bx**2 + by**2) * (ax - cx)
+            + (cx**2 + cy**2) * (bx - ax)
+        ) / d
+        return [ux, uy]
 
     def to_gridded_points(self, cell_size):  # meter
         bbox = self.dt.get_bbox()  # [minx, miny, maxx, maxy]
@@ -64,4 +130,4 @@ class TIN:
                 -cell_size,  # Negative because the raster's origin is top-left
             ),
         }
-        write_ras(file_path, profile, raster_points)
+        # write_ras(file_path, profile, raster_points)
