@@ -7,7 +7,11 @@ pipeline_json = {
     "pipeline": [
         {
             "type": "readers.las",
-            "filename": "LAS.las"
+            "filename": "69BZ2_19.LAZ"
+        },
+        {
+            "type": "filters.range",
+            "limits": "Classification[1:1]"
         },
         # Filter by intensity values
         {
