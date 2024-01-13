@@ -12,7 +12,6 @@ def create_dtm(
     input_file,
     output_file,
 ):
-    print("start----------")
     extent = cfg.EXTENT
     cell_size = cfg.GFTIN_CELL_SIZE
     buffered_extent = [
