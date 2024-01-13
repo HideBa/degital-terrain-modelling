@@ -1,4 +1,3 @@
-# geo1015-ass4-team-bbq
 
 # Getting started
 
