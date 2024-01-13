@@ -1,8 +1,7 @@
 import os
+
 import numpy as np
 import pdal
-import laspy
-
 from ptio import read_laz
 
 
@@ -49,6 +48,8 @@ def preprocess(original_filename):
 
     if not os.path.isfile(thinned_filename):
         nth_thinning(original_filename, 2, thinned_filename)
+        print("===thinned file created===")
     if not os.path.isfile(no_outlier_filename):
         remove_outliers(thinned_filename, no_outlier_filename)
+        print("===no outlier file created===")
     return no_outlier_filename

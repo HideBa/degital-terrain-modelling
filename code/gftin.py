@@ -1,9 +1,10 @@
 import math
 import os
-import numpy as np
-from startinpy import DT
+
 import config as cfg
+import numpy as np
 from geojson import write_geojson
+from startinpy import DT
 
 
 class GFTIN:

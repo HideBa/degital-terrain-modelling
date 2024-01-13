@@ -18,6 +18,9 @@ poetry install
 To run this program, you need to check `config.py` which allows you to change several paramers for the program such as input file name and output file name.
 To run this program with your arbitary input LAS file, you need to locate the data under the `data/input` directory and modify config.
 
+> [!NOTE]
+> The program executes pre-processing to create thinned las file and remove outliers. When you first run the program it might take more time. Since pre-processed files are saved under `data/input` dir, it won't take long from second time.
+
 ## Run commands
 
 ### Run Step3, 4 and 5 together

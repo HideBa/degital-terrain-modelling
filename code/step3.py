@@ -1,11 +1,11 @@
-from ptio import read_laz
-from gftin import GFTIN
-from preprocess import clip_pc, preprocess
-from lasinfo import las_info
-from tin import TIN
-import numpy as np
 import config as cfg
 import laspy
+import numpy as np
+from gftin import GFTIN
+from lasinfo import las_info
+from preprocess import clip_pc, preprocess
+from ptio import read_laz
+from tin import TIN
 
 
 def create_dtm(

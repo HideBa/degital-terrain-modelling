@@ -14,7 +14,7 @@ startinpy = "^0.10.2"
 pdal = "^3.2.3"
 pyproj = "^3.6.1"
 matplotlib = "^3.8.2"
-laspy = "^2.5.3"
+laspy = {extras = ["lazrs"], version = "^2.5.3"}
 
 
 [tool.poetry.group.dev.dependencies]

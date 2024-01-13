@@ -1,10 +1,11 @@
 import os
+
+import config as cfg
 import numpy as np
 import rasterio
-from preprocess import preprocess
-import config as cfg
 import step3
 import step4
+from preprocess import preprocess
 
 
 # TODO: debug why DTM and vegetation have different shape

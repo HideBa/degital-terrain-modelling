@@ -1,13 +1,13 @@
 import os
-from matplotlib import pyplot as plt
-from ptio import read_laz
-from gftin import GFTIN
-from preprocess import clip_pc, preprocess
-import numpy as np
-import laspy
-import config as cfg
 
+import config as cfg
+import laspy
+import numpy as np
+from gftin import GFTIN
 from lasinfo import las_info
+from matplotlib import pyplot as plt
+from preprocess import clip_pc, preprocess
+from ptio import read_laz
 
 
 def find_optimistic_params():

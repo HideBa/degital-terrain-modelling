@@ -1,10 +1,10 @@
 import math
+
 import numpy as np
 import rasterio
+from geojson import write_geojson
 from ptio import write_ras
 from startinpy import DT
-
-from geojson import write_geojson
 
 
 class TIN:
