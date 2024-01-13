@@ -94,8 +94,13 @@ class TIN:
         ) / d
         return [ux, uy]
 
-    def to_gridded_points(self, cell_size):  # meter
-        bbox = self.dt.get_bbox()  # [minx, miny, maxx, maxy]
+    def to_gridded_points(self, bbox, cell_size):
+        """
+        bbox = [minx, miny, maxx, maxy]
+        cell_size = in meter
+        """
+        print("dt bbox", self.dt.get_bbox())
+        print("bbox", bbox)
         rows = []
         y = bbox[1]
         while y < bbox[3]:
@@ -109,8 +114,8 @@ class TIN:
             y += cell_size
         return rows
 
-    def write_dtm(self, file_path, cell_size, nodata=-9999):
-        grid_points = np.array(self.to_gridded_points(cell_size))
+    def write_dtm(self, file_path, bbox, cell_size, nodata=-9999):
+        grid_points = np.array(self.to_gridded_points(bbox, cell_size))
         raster_points = grid_points[:, :, 2]
 
         if self.debug:

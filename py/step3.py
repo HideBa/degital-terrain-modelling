@@ -1,7 +1,6 @@
-import os
 from ptio import read_laz
 from gftin import GFTIN
-from preprocess import clip_pc, nth_thinning, preprocess, remove_outliers
+from preprocess import clip_pc, preprocess
 from lasinfo import las_info
 from tin import TIN
 import numpy as np
@@ -44,9 +43,10 @@ def create_dtm(
     # ground_points = np.loadtxt("./py/data/out/debug/ground_points.txt")
 
     # # write ground points to a file
-    # tin = TIN(ground_points)
-    # tin.save_geojson("./py/data/out/debug/tin.geojson")
-    # tin.write_dtm(output_file, 0.5)
+    tin = TIN(ground_points)
+    bbox = cfg.EXTENT
+    raster_bbox = [bbox[0], bbox[1], bbox[3], bbox[4]]
+    tin.write_dtm(output_file, raster_bbox, 0.5)
 
 
 if __name__ == "__main__":

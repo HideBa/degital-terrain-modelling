@@ -73,6 +73,7 @@ class GFTIN:
         ground_points_indices = np.where(points.is_ground == 1)[0]
         ground_points = xyz_points[ground_points_indices]
         self.las.points = points
+        ground_points = np.vstack((ground_points, self.triangle_convex_hull_points()))
         return ground_points
 
     def _angle_between_two_vectors(self, a, b, c):
@@ -169,3 +170,8 @@ class GFTIN:
         z_valid = (self.bbox[2] <= points.z) & (self.bbox[5] >= points.z)
         valid_indices = np.where(x_valid & y_valid & z_valid)[0]
         return valid_indices
+
+    def triangle_convex_hull_points(self):
+        convex_hull = self.dt.convex_hull()
+        conv_points = np.array([self.dt.points[i] for i in convex_hull])
+        return conv_points
