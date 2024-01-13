@@ -2,11 +2,11 @@ import math
 import numpy as np
 from startinpy import DT
 
-from geojson import write_geojson
+from geojson import transform_points, write_geojson
 
 
 class GFTIN:
-    def __init__(self, las, cell_size, bbox):
+    def __init__(self, las, cell_size, bbox, debug=False):
         if las is None:
             raise ValueError("las must not be None")
         self.las = las
@@ -17,11 +17,18 @@ class GFTIN:
         self.cell_size = cell_size
         self.bbox = bbox  # [minx, miny, minz, maxx, maxy, maxz]
         self.dt = DT()
+        self.debug = debug
         self._construct_initial_tin()
+        self.write_tin_geojson("./py/data/out/debug/startin.geojson")
 
     # This function is for testing purpose only. The reason why statrinpy's write_geojson isn't used is because it doesn't support WGS84 coordinate system.
     def write_tin_geojson(self, file_path):
-        # self.dt.write_geojson(file_path)
+        # points = self.dt.points
+        # triangles = [
+        #     [points[i], points[j], points[k]] for i, j, k in self.dt.get_triangles()
+        # ]
+        # points = transform_points(points, "epsg:28992", "epsg:4326")
+        # triangles = transform_points(triangles, "epsg:28992", "epsg:4326")
         write_geojson(
             file_path,
             self.dt.points,
@@ -30,41 +37,42 @@ class GFTIN:
         )
 
     def ground_filtering(self, dist_threshold=5, max_angle=30):  # degree
-        # ground_points = np.empty((0, 3))
-        points = self.las.points
-        xyz_points = self.las.xyz
+        points = self.las.points[self.point_indices_in_bbox()]
+        xyz_points = self.las.xyz[self.point_indices_in_bbox()]
+        print("gftin number of poinsts: ", len(points))
         for i, p in enumerate(xyz_points):
             try:
-                tri = self.dt.locate(p)
+                tri = self.dt.locate(p[0], p[1])
             except Exception:
-                print("point isn't inside of triangle")
                 try:
-                    nearest_point = self.dt.closest_point(p[0], p[1])
+                    nearest_point = self.dt.closest_point([p[0], p[1]])
                     tri = self.dt.incident_triangles_to_vertex(nearest_point)[0]
                 except Exception:
-                    print("point isn't inside of triangle")
+                    print("Warning!!!!!!!!!!!!")
 
                     points.is_ground[i] = 0
                     continue
+                print("point isn't inside of triangle")
+                points.is_ground[i] = 0
+                continue
             # d is the intersection point of the triangle and the vertical line from p
             tri_vetecies = [self.dt.points[i] for i in tri]  # [[x, y, z]]
-            d = self._intersection_point_of_triangle(tri_vetecies, p)
-            dist = np.linalg.norm(p - d)
+            d = self._intersection_point_of_triangle(tri_vetecies, [p[0], p[1], p[2]])
+            dist = np.linalg.norm([p[0], p[1], p[2]] - d)
             if dist > dist_threshold:
                 points.is_ground[i] = 0
                 continue
             a, b, c = tri_vetecies
-            angle_a_p = self._angle_between_two_vectors(a, d, p)
-            angle_b_p = self._angle_between_two_vectors(b, d, p)
-            angle_c_p = self._angle_between_two_vectors(c, d, p)
+            angle_a_p = self._angle_between_two_vectors(a, d, [p[0], p[1], p[2]])
+            angle_b_p = self._angle_between_two_vectors(b, d, [p[0], p[1], p[2]])
+            angle_c_p = self._angle_between_two_vectors(c, d, [p[0], p[1], p[2]])
             if angle_a_p > max_angle or angle_b_p > max_angle or angle_c_p > max_angle:
                 points.is_ground[i] = 0
                 continue
-
             points.is_ground[i] = 1
-            # ground_points = np.vstack((ground_points, p))
         ground_points_indices = np.where(points.is_ground == 1)[0]
         ground_points = xyz_points[ground_points_indices]
+        self.las.points = points
         return ground_points
 
     def _angle_between_two_vectors(self, a, b, c):
@@ -105,16 +113,15 @@ class GFTIN:
 
     def _extract_lowest_points(self):
         cells = self._divide_extent_by_cell_size()
-
         reshaped_cell = np.array(cells).reshape(-1, 2)
-        # Debug
-        # ----------------------------------------
-        write_geojson(
-            "./py/data/out/debug/cells.geojson",
-            reshaped_cell,
-            "epsg:28992",
-            "epsg:4326",
-        )
+
+        if self.debug is True:
+            write_geojson(
+                "./py/data/out/debug/cells.geojson",
+                reshaped_cell,
+                "epsg:28992",
+                "epsg:4326",
+            )
 
         points = np.empty((0, 3))
         for row in cells:
@@ -136,21 +143,29 @@ class GFTIN:
 
         valid_indices = np.where(x_valid & y_valid)[0]
         points_in_cell = points[valid_indices]
-
         sorted_array = points_in_cell[points_in_cell[:, 2].argsort()]
-
         z_min_points = sorted_array[:num]
         return z_min_points
 
     def _divide_extent_by_cell_size(self):
         rows = []
-        y = self.bbox[1]
-        while y < self.bbox[4]:
+        y = (
+            self.bbox[1] - self.cell_size * 2
+        )  # this is to have buffer so that all points have a triangle below them
+        while y < self.bbox[4] + self.cell_size * 2:
             columns = []
-            x = self.bbox[0]
-            while x < self.bbox[3]:
+            x = self.bbox[0] - self.cell_size * 2
+            while x < self.bbox[3] + self.cell_size * 2:
                 columns.append([x + (self.cell_size / 2), y + (self.cell_size / 2)])
                 x += self.cell_size
             rows.append(columns)
             y += self.cell_size
         return rows
+
+    def point_indices_in_bbox(self):
+        points = self.las.points
+        x_valid = (self.bbox[0] <= points.x) & (self.bbox[3] >= points.x)
+        y_valid = (self.bbox[1] <= points.y) & (self.bbox[4] >= points.y)
+        z_valid = (self.bbox[2] <= points.z) & (self.bbox[5] >= points.z)
+        valid_indices = np.where(x_valid & y_valid & z_valid)[0]
+        return valid_indices

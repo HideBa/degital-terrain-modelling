@@ -449,20 +449,20 @@ files = [
 
 [[package]]
 name = "laspy"
-version = "2.5.1"
+version = "2.5.3"
 description = "Native Python ASPRS LAS read/write library"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "laspy-2.5.1.tar.gz", hash = "sha256:baa3c9c6cc155636f161149111f9cfc243dbd14f6cca729c94b356b31c668f2e"},
+    {file = "laspy-2.5.3.tar.gz", hash = "sha256:4ad698914358ea5a096da52e69bceccd320d9ddfb367480a5c2b5e086db812b7"},
 ]
 
 [package.dependencies]
 numpy = "*"
 
 [package.extras]
-cli = ["typer[all] (>=0.8.0)"]
+cli = ["rich (>=10.11.0)", "typer[all] (>=0.8.0)"]
 dev = ["black (==22.3.0)", "coverage", "isort (==5.11.5)", "m2r2", "nox", "pytest", "pytest-benchmark", "rangehttpserver", "sphinx", "sphinx-rtd-theme"]
 laszip = ["laszip (>=0.2.1,<0.3.0)"]
 lazrs = ["lazrs (>=0.5.0,<0.6.0)"]
@@ -979,4 +979,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7f00281a7305227a7086fbbadcc9cedd85f02d64578d43ad040677470d4931fc"
+content-hash = "77c19490407234c91c5c526c39ba72e77c2f71582edafae94217b83a46bbd3ee"
