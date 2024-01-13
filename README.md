@@ -1,72 +1,68 @@
 
-# Getting started
+## Getting Started
 
-## Install packages
+### Installing Packages
+
+Install the required packages using pip:
 
 ```
 pip install -r requirements.txt
 ```
 
-or if you use Poetry
+Alternatively, if you use Poetry:
 
 ```
 poetry install
 ```
 
-## Configuration
+### Configuration
 
-To run this program, you need to check `config.py` which allows you to change several paramers for the program such as input file name and output file name.
-To run this program with your arbitary input LAS file, you need to locate the data under the `data/input` directory and modify config.
+To run this program, you should check `config.py`. This file allows you to modify several parameters, such as the input file name and output file name. To use your own LAS file, place it in the `data/input` directory and update the configuration accordingly.
 
 > [!NOTE]
-> The program executes pre-processing to create thinned las file and remove outliers. When you first run the program it might take more time. Since pre-processed files are saved under `data/input` dir, it won't take long from second time.
+> The program performs pre-processing tasks, including thinning the LAS file and removing outliers. The first execution might take more time. Pre-processed files are saved under the `data/input` directory, which speeds up subsequent runs.
 
-## Run commands
+## Run Commands
 
-### Run Step3, 4 and 5 together
+> [!NOTE]
+> Due to the high time complexity of the ground filtering algorithm and interpolation, processing a 500m by 500m extent can take a considerable amount of time. For testing purposes, it is recommended to use a smaller extent, such as 100m by 100m. This can be adjusted in `config.py`.
+
+### Running Steps 3, 4, and 5 Together
 
 ```
 make main
 ```
 
-### Step3
+### Step 3
 
 ```
 make step3
 ```
 
-### Step4
+### Step 4
 
 ```
 make step4
 ```
 
-### Step5
+### Step 5
 
 ```
 make step5
 ```
 
-# Overview of program
+## Overview of the Program
 
-## Programs
+### Modules
 
-`preprocess.py`:This file contains a couple functions for pre-processing such as thinning, remove outliers and clip data with bounding box.
-
-`gftin.py`: The program which process ground filtering test. The class has functions to to return points passed ground test. In debug mode, it'll write GeoJSON file exporting TIN.
-
-`tin.py`: This program create TIN with all of ground points. This class is the interface to create TIN and rasterise with arbitary extent.
-
-`benchmark.py`: Benchmark can be obtains with this file. This file allows you to change three key parameters of ground filtering test and serves statistical result.
-
-`ptio.py`: A file looks after IO.
-
-`geojson.py`: A file to export points as GeoJSON file with specified coordinate transformation. This is mainly debug purpose.
-
-`pipeline.py`: PDAL pipeline to run DBSCAN. The class and its functions allows you to change some parameters such as `eps` and `min_points` for DBSCAN.
-
-`vegetation.py`: The class which extracts points of trees from unclassified points. Detail of implementaion is written in the report.
-
-`step3.py`: main file of step3.
-`step4.py`: main file of step4.
-`step5.py`: main file of step5.
+- `preprocess.py`: Contains functions for pre-processing, such as thinning, outlier removal, and data clipping with a bounding box.
+- `gftin.py`: Processes ground filtering tests. It returns points that pass the ground test and, in debug mode, writes a GeoJSON file exporting the TIN.
+- `tin.py`: Creates a TIN (Triangulated Irregular Network) with ground points. This class interfaces with TIN creation and rasterization for any given extent.
+- `benchmark.py`: Provides benchmarks for the program. It allows modification of three key parameters in the ground filtering test and outputs statistical results.
+- `ptio.py`: Manages input and output operations.
+- `geojson.py`: Exports points as a GeoJSON file with specified coordinate transformations, mainly for debugging purposes.
+- `pipeline.py`: Utilizes PDAL pipeline to run DBSCAN. This class and its functions let you modify parameters such as `eps` and `min_points` for DBSCAN.
+- `vegetation.py`: Extracts tree points from unclassified points. Implementation details are in the report.
+- `step3.py`: Main file for step 3.
+- `step4.py`: Main file for step 4.
+- `step5.py`: Main file for step 5.
