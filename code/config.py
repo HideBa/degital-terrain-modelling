@@ -12,7 +12,7 @@ EXTENT = [
 # ymin, ymax = np.min(xyz[:, 1]), np.max(xyz[:, 1])
 # zmin, zmax = np.min(xyz[:, 2]), np.max(xyz[:, 2])
 
-INPUT_LAS = "./data/input/69BZ2_19.las"
+INPUT_LAS = "./data/input/69BZ2_19.LAZ"
 STEP3_OUTPUT = "./data/dtm.tiff"
 STEP4_OUTPUT = "./data/step4.tiff"
 STEP5_OUTPUT = "./data/chm.tiff"

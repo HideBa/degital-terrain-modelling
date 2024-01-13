@@ -1,9 +1,10 @@
 import os
-from preprocess import preprocess
+
 import config as cfg
 import step3
 import step4
 import step5
+from preprocess import preprocess
 
 
 def main():

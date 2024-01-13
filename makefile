@@ -15,11 +15,11 @@ lint:
 
 .PHONY: format
 format:
-	poetry run black $(PACKAGE_DIR)/**/*.py
+	poetry run black $(PACKAGE_DIR)/*.py
 
 .PHONY: sort
 sort:
-	poetry run isort $(PACKAGE_DIR)/**/*.py
+	poetry run isort $(PACKAGE_DIR)/*.py
 
 .PHONY: test
 test:

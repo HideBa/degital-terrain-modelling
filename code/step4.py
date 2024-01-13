@@ -1,11 +1,11 @@
 import tempfile
 
-from ptio import read_laz
-from preprocess import preprocess, clip_pc
-from pipeline import Pipeline
-from lasinfo import las_info
-from vegetation_ext import VegetationExtractor
 import config as cfg
+from lasinfo import las_info
+from pipeline import Pipeline
+from preprocess import clip_pc, preprocess
+from ptio import read_laz
+from vegetation_ext import VegetationExtractor
 
 
 def extract_vegetation(input_path, output_path):

@@ -1,8 +1,7 @@
 import numpy as np
 import rasterio
-from startinpy import DT
-
 from ptio import write_ras
+from startinpy import DT
 
 
 class VegetationExtractor:
