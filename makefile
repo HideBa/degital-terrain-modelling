@@ -1,4 +1,4 @@
-PACKAGE_DIR := py
+PACKAGE_DIR := code
 
 .PHONY: install
 install:
@@ -41,3 +41,7 @@ step4:
 .PHONY: step5
 step5:
 	python $(PACKAGE_DIR)/step5.py
+
+.PHONY: main
+main:
+	python $(PACKAGE_DIR)/main.py
