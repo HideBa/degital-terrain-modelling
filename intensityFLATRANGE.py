@@ -6,7 +6,7 @@ pipeline_json = {
     "pipeline": [
         {
             "type": "readers.las",
-            "filename": "LAS.las"  # Replace with the path to your input LAS file
+            "filename": "LAS.las"  
         },
         {
             "type": "filters.range",
