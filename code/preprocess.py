@@ -6,6 +6,15 @@ from ptio import read_laz
 
 
 def remove_outliers(input_path, output_path, nb_neighbors=10, std_ratio=2.0):
+    """
+    Remove outliers from a point cloud using statistical outlier removal.
+
+    Args:
+        input_path (str): Path to the input point cloud file.
+        output_path (str): Path to save the output point cloud file.
+        nb_neighbors (int, optional): Number of neighbors to consider for outlier detection. Defaults to 10.
+        std_ratio (float, optional): Standard deviation ratio for outlier detection. Defaults to 2.0.
+    """
     pipeline_setting = """
     [
         "{input}",

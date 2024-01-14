@@ -8,7 +8,48 @@ from startinpy import DT
 
 
 class GFTIN:
+    """
+    Ground Filtering TIN (Triangulated Irregular Network) class.
+
+    This class represents a ground filtering algorithm based on TIN. It takes a LAS file, cell size, bounding box, and debug flag as input parameters.
+    The LAS file must not be None, the cell size must be positive, and the bounding box must have 6 elements.
+    The debug flag is optional and defaults to False.
+
+    Attributes:
+        las (laspy.LASData): The input LAS class.
+        cell_size (float): The size of each cell in the grid.
+        bbox (list): The bounding box of the area of interest. [minx, miny, minz, maxx, maxy, maxz]
+        dt (DT): The Delaunay Triangulation object.
+        debug (bool): Flag indicating whether to enable debug mode.
+
+    Methods:
+        ground_filtering(dist_threshold=5, max_angle=30): Performs ground filtering on the LAS points.
+        _angle_between_two_vectors(a, b, c): Calculates the angle between two vectors.
+        _intersection_point_of_triangle(tri, p): Calculates the intersection point of a triangle and a vertical line.
+        _construct_initial_tin(): Constructs the initial TIN using the lowest points in each cell.
+        _extract_lowest_points(): Extracts the lowest points in each cell.
+        _find_lowest_point_in_a_cell(cell, num=1): Finds the lowest point(s) in a cell.
+        _divide_extent_by_cell_size(): Divides the extent of the bounding box into cells.
+        point_indices_in_bbox(): Returns the indices of the points within the bounding box.
+        triangle_convex_hull_points(): Returns the points forming the convex hull of the TIN.
+        write_tin_geojson(file_path): Writes the TIN to a GeoJSON file.
+
+    """
+
     def __init__(self, las, cell_size, bbox, debug=False):
+        """
+        Initializes a GFTIN object.
+
+        Args:
+            las (laspy.LASData): The input LAS class.
+            cell_size (float): The size of each cell in the grid.
+            bbox (list): The bounding box of the area of interest. [minx, miny, minz, maxx, maxy, maxz]
+            debug (bool, optional): Flag indicating whether to enable debug mode. Defaults to False.
+
+        Raises:
+            ValueError: If las is None, cell_size is not positive, or bbox does not have 6 elements.
+
+        """
         if las is None:
             raise ValueError("las must not be None")
         self.las = las
@@ -24,7 +65,18 @@ class GFTIN:
         if self.debug is True:
             self.write_tin_geojson(os.path.join(cfg.DEBUG_DATA_DIR, "startin.geojson"))
 
-    def ground_filtering(self, dist_threshold=5, max_angle=30):  # degree
+    def ground_filtering(self, dist_threshold=5, max_angle=30):
+        """
+        Performs ground filtering on the LAS points.
+
+        Args:
+            dist_threshold (float, optional): The distance threshold for classifying points as ground. Defaults to 5.
+            max_angle (float, optional): The maximum angle (in degrees) between the normal vector of a triangle and the vertical direction for classifying points as ground. Defaults to 30.
+
+        Returns:
+            numpy.ndarray: The ground points.
+
+        """
         points = self.las.points[self.point_indices_in_bbox()]
         xyz_points = self.las.xyz[self.point_indices_in_bbox()]
         for i, p in enumerate(xyz_points):
@@ -69,6 +121,18 @@ class GFTIN:
         return ground_points
 
     def _angle_between_two_vectors(self, a, b, c):
+        """
+        Calculates the angle between two vectors.
+
+        Args:
+            a (numpy.ndarray): The first vector.
+            b (numpy.ndarray): The second vector.
+            c (numpy.ndarray): The third vector.
+
+        Returns:
+            float: The angle between the two vectors in degrees.
+
+        """
         ab = math.dist(a, b)
         ac = math.dist(a, c)
         if ab == 0 or ac == 0:
@@ -84,6 +148,17 @@ class GFTIN:
         return math.degrees(a_rad)
 
     def _intersection_point_of_triangle(self, tri, p):
+        """
+        Calculates the intersection point of a triangle and a vertical line.
+
+        Args:
+            tri (list): The vertices of the triangle.
+            p (list): The point on the vertical line.
+
+        Returns:
+            numpy.ndarray: The intersection point.
+
+        """
         a, b, c = tri
         ab = b - a
         ac = c - a
@@ -101,10 +176,21 @@ class GFTIN:
         return d
 
     def _construct_initial_tin(self):
+        """
+        Constructs the initial TIN using the lowest points in each cell.
+
+        """
         points_for_tin = self._extract_lowest_points()
         self.dt.insert(points_for_tin)
 
     def _extract_lowest_points(self):
+        """
+        Extracts the lowest points in each cell.
+
+        Returns:
+            numpy.ndarray: The lowest points.
+
+        """
         cells = self._divide_extent_by_cell_size()
         reshaped_cell = np.array(cells).reshape(-1, 2)
 
@@ -124,6 +210,17 @@ class GFTIN:
         return points
 
     def _find_lowest_point_in_a_cell(self, cell, num=1):
+        """
+        Finds the lowest point(s) in a cell.
+
+        Args:
+            cell (list): The cell coordinates.
+            num (int, optional): The number of lowest points to find. Defaults to 1.
+
+        Returns:
+            numpy.ndarray: The lowest point(s).
+
+        """
         cell_bbox = [
             cell[0] - (self.cell_size / 2),
             cell[1] - (self.cell_size / 2),
@@ -141,6 +238,13 @@ class GFTIN:
         return z_min_points
 
     def _divide_extent_by_cell_size(self):
+        """
+        Divides the extent of the bounding box into cells.
+
+        Returns:
+            list: The cells.
+
+        """
         rows = []
         y = (
             self.bbox[1] - self.cell_size * 2
@@ -156,6 +260,13 @@ class GFTIN:
         return rows
 
     def point_indices_in_bbox(self):
+        """
+        Returns the indices of the points within the bounding box.
+
+        Returns:
+            numpy.ndarray: The indices of the points.
+
+        """
         points = self.las.points
         x_valid = (self.bbox[0] <= points.x) & (self.bbox[3] >= points.x)
         y_valid = (self.bbox[1] <= points.y) & (self.bbox[4] >= points.y)
@@ -164,12 +275,25 @@ class GFTIN:
         return valid_indices
 
     def triangle_convex_hull_points(self):
+        """
+        Returns the points forming the convex hull of the TIN.
+
+        Returns:
+            numpy.ndarray: The points forming the convex hull.
+
+        """
         convex_hull = self.dt.convex_hull()
         conv_points = np.array([self.dt.points[i] for i in convex_hull])
         return conv_points
 
-    # This function is for testing purpose only. The reason why statrinpy's write_geojson isn't used is because it doesn't support WGS84 coordinate system.
     def write_tin_geojson(self, file_path):
+        """
+        Writes the TIN to a GeoJSON file.
+
+        Args:
+            file_path (str): The file path to write the GeoJSON file.
+
+        """
         write_geojson(
             file_path,
             self.dt.points,
