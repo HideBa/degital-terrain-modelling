@@ -11,6 +11,14 @@ from ptio import read_laz
 
 
 def find_optimistic_params():
+    """
+    Finds the optimistic parameters for the benchmark by iterating over different combinations of
+    distance threshold, maximum angle, and cell size. It calls the `benchmark` function with each
+    combination and plots the results using the `plot_benchmarks` function.
+
+    Returns:
+        None
+    """
     file_path = preprocess(cfg.INPUT_LAS)
     out_dir = cfg.BENCHMARK_OUT_DIR
 
