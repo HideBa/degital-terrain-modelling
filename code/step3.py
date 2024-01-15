@@ -34,7 +34,7 @@ def create_dtm(
     )
     las.is_ground = np.zeros(len(las.points), dtype=np.uint8)
 
-    gftin = GFTIN(las, cfg.GFTIN_CELL_SIZE, extent, debug=True)
+    gftin = GFTIN(las, cfg.GFTIN_CELL_SIZE, extent)
     ground_points = gftin.ground_filtering()
 
     # # write ground points to a file

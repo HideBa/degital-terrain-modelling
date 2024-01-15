@@ -159,10 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/data/debug
-/data/input
-/data/figure
-# /data/input
+/data/debug/*
+/data/input/*
+/data/figure*
+!*.gitkeep
 .DS_Store
 /cloud_compare
 /qgis

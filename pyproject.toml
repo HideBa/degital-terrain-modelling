@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["HideBa <baba.papa1120.ba@gmail.com>"]
 readme = "README.md"
-packages = [{include = "geo1015_ass4_team_bbq"}]
+packages = [{ include = "geo1015_ass4_team_bbq" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -14,7 +14,7 @@ startinpy = "^0.10.2"
 pdal = "^3.2.3"
 pyproj = "^3.6.1"
 matplotlib = "^3.8.2"
-laspy = {extras = ["lazrs"], version = "^2.5.3"}
+laspy = { extras = ["lazrs"], version = "^2.5.3" }
 
 
 [tool.poetry.group.dev.dependencies]

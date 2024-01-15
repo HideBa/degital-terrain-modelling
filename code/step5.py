@@ -8,7 +8,6 @@ import step4
 from preprocess import preprocess
 
 
-# TODO: debug why DTM and vegetation have different shape
 def create_chm(dtm_filepath, vegetation_filepath, output_filepath, cell_size=0.5):
     # it expects dtm and vegetation file has same crs and resolution
     with rasterio.open(dtm_filepath) as dtm:
@@ -39,6 +38,8 @@ def create_chm(dtm_filepath, vegetation_filepath, output_filepath, cell_size=0.5
                 if chm < 0:  # there is no minus since vegetation is higher than ground
                     chm = 0
                 chm_data[i][j] = chm
+            else:
+                chm_data[i][j] = 0
 
     dtm_minx, dtm_miny, dtm_maxx, dtm_maxy = dtm_bbox
     (
