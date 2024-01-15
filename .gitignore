@@ -161,7 +161,7 @@ cython_debug/
 
 /data/debug/*
 /data/input/*
-/data/figure*
+/data/figure/*
 !*.gitkeep
 .DS_Store
 /cloud_compare
