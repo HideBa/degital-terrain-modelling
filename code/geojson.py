@@ -5,6 +5,9 @@ from pyproj import Proj, Transformer
 
 
 def write_geojson(filepath, points, src_crs=None, target_crs=None):
+    """
+    points: [[x, y, z], ...]
+    """
     points = transform_points(points, src_crs, target_crs)
     geojson = {
         "type": "FeatureCollection",
