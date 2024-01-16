@@ -27,10 +27,6 @@ class TIN:
         Returns:
             float: The interpolated value at the given point.
         """
-        # true_interpolated_value = self.dt.interpolate(
-        #     {"method": "Laplace"}, [[p[0], p[1]]]
-        # )
-        # return true_interpolated_value[0]
 
         p = [p[0], p[1], 0.0]
         p_index = self.dt.insert_one_pt(p[0], p[1], p[2])
