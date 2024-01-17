@@ -112,6 +112,8 @@ class GFTIN:
             if angle_a_p > max_angle or angle_b_p > max_angle or angle_c_p > max_angle:
                 points.is_ground[i] = 0
                 continue
+            print(i * 100 / len(xyz_points), "% done")
+            self.dt.insert_one_pt(p[0], p[1], p[2])
             points.is_ground[i] = 1
 
         ground_points_indices = np.where(points.is_ground == 1)[0]

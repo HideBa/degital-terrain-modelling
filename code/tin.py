@@ -27,7 +27,6 @@ class TIN:
         Returns:
             float: The interpolated value at the given point.
         """
-
         p = [p[0], p[1], 0.0]
         p_index = self.dt.insert_one_pt(p[0], p[1], p[2])
         if self.dt.is_vertex_convex_hull(p_index):  # impossible to interpolate
