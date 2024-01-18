@@ -22,6 +22,7 @@
 GFTIN_CELL_SIZE = (
     50  # not the best but it must be smaller than extent as it is 100x100m
 )
+# smaller extent for tesing (100x100m)
 EXTENT = [
     188357.16128481762,
     314305.9965786306,
