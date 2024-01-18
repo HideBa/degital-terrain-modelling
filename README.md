@@ -1,4 +1,3 @@
-
 ## Getting Started
 
 ### Installing Packages
@@ -7,6 +6,12 @@ Install the required packages using pip:
 
 ```
 pip install -r requirements.txt
+```
+
+If you install all dependencies with development packages
+
+```
+pip install -r requirements.dev.txt
 ```
 
 Alternatively, if you use Poetry:
